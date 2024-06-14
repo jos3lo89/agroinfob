@@ -1,0 +1,27 @@
+{
+  "name": "agroinfoapp",
+  "version": "1.0.0",
+  "description": "Aplicación para la gestion de información de las asociaciones de agricultores en Andahuaylas",
+  "main": "./src/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --env-file .env ./src/server.ts",
+    "build": "rimraf ./dist && tsc",
+    "start": "node --env-file .env ./dist/server.js"
+  },
+  "author": "jos3",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^20.14.2",
+    "morgan": "^1.10.0",
+    "prisma": "^5.15.0",
+    "rimraf": "^5.0.7",
+    "ts-node-dev": "^2.0.0"
+  }
+}
