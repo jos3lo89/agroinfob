@@ -19,7 +19,7 @@ model Usuarios {
 
   nombre   String  @db.VarChar(50)
   apellido String  @db.VarChar(50)
-  foto     String? @db.VarChar(33)
+  foto     String? @db.VarChar(80)
   foto_id  String? @db.VarChar(100)
   correo String @unique @db.VarChar(25)
   clave  String @db.VarChar(60)

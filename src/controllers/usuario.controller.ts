@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
+import * as fs from "node:fs/promises";
 
 // mis imports
 import { Usuario } from "../models/usuario.model";
@@ -33,7 +34,7 @@ export class UsuarioController {
       const userfound = await Usuario.buscarUsuario(correo);
 
       if (!userfound) {
-        throw new Error("El correo no existe");
+        throw new Error("El usuario no existe");
       }
 
       const isMatch = await bcrypt.compare(clave, userfound.clave);
@@ -72,7 +73,7 @@ export class UsuarioController {
       const userfound = await Usuario.buscarUsuario(correo);
 
       if (!userfound) {
-        throw new Error("El correo no existe");
+        throw new Error("El usuario no existe");
       }
 
       res.status(200).json(userfound);
@@ -86,6 +87,197 @@ export class UsuarioController {
     try {
       res.clearCookie("token");
       res.sendStatus(204);
+    } catch (error: any) {
+      console.log(error.message);
+      return res.status(400).json({ message: [error.message] });
+    }
+  }
+
+  static async actualizarDatos(req: Request, res: Response) {
+    try {
+      const correo = req.user?.correo;
+      const { nombre, apellido } = req.body;
+
+      if (!correo) {
+        throw new Error("No hay usuario autenticado");
+      }
+
+      const userfound = await Usuario.buscarUsuario(correo);
+
+      if (!userfound) {
+        throw new Error("El usuario no existe");
+      }
+
+      const userUpdated = await Usuario.actualizarDatosUsuario({
+        correo: correo,
+        nombre: nombre,
+        apellido: apellido,
+      });
+
+      res.status(200).json(userUpdated);
+    } catch (error: any) {
+      console.log(error.message);
+      return res.status(400).json({ message: [error.message] });
+    }
+  }
+
+  static async actualizarClave(req: Request, res: Response) {
+    try {
+      const correo = req.user?.correo;
+      const { clave, nuevaClave } = req.body;
+
+      if (!correo) {
+        throw new Error("No hay usuario autenticado");
+      }
+
+      const userfound = await Usuario.buscarUsuario(correo);
+
+      if (!userfound) {
+        throw new Error("El usuario no existe");
+      }
+
+      const isMatch = await bcrypt.compare(clave, userfound.clave);
+
+      if (!isMatch) {
+        throw new Error("La clave no es válida");
+      }
+
+      const nuevaClaveHash = await bcrypt.hash(nuevaClave, 10);
+
+      const userUpdated = await Usuario.actualizarClaveUsuario({
+        correo: correo,
+        nuevaClave: nuevaClaveHash,
+      });
+
+      res.status(200).json(userUpdated);
+    } catch (error: any) {
+      console.log(error.message);
+      return res.status(400).json({ message: [error.message] });
+    }
+  }
+
+  static async agregarFoto(req: Request, res: Response) {
+    try {
+      const correo = req.user?.correo;
+
+      if (!correo) {
+        throw new Error("No hay usuario autenticado");
+      }
+
+      if (!req.file) {
+        throw new Error("No se ha enviado el archivo");
+      }
+
+      const userfound = await Usuario.buscarUsuario(correo);
+
+      if (!userfound) {
+        throw new Error("El usuario no existe");
+      }
+
+      if (userfound.foto) {
+        await fs.unlink(`./public/uploads/${req.file.filename}`);
+        throw new Error("El usuario ya tiene una foto");
+      }
+
+      const userUpdated = await Usuario.agregarFotoUsuario({
+        correo: correo,
+        foto: `/uploads/${req.file.filename}`,
+      });
+
+      res.status(200).json(userUpdated);
+    } catch (error: any) {
+      console.log(error.message);
+      return res.status(400).json({ message: [error.message] });
+    }
+  }
+
+  static async eliminarFoto(req: Request, res: Response) {
+    try {
+      const correo = req.user?.correo;
+
+      if (!correo) {
+        throw new Error("No hay usuario autenticado");
+      }
+
+      const userfound = await Usuario.buscarUsuario(correo);
+
+      if (!userfound) {
+        throw new Error("El usuario no existe");
+      }
+
+      if (!userfound.foto) {
+        throw new Error("El usuario no tiene una foto");
+      }
+
+      await fs.unlink(`./public${userfound.foto}`);
+
+      const userUpdated = await Usuario.eliminarFotoUsuario(correo);
+
+      res.status(200).json(userUpdated);
+    } catch (error: any) {
+      console.log(error.message);
+      return res.status(400).json({ message: [error.message] });
+    }
+  }
+
+  static async actualizarFoto(req: Request, res: Response) {
+    try {
+      const correo = req.user?.correo;
+
+      if (!req.file) {
+        throw new Error("No se ha enviado el archivo");
+      }
+
+      if (!correo) {
+        throw new Error("No hay usuario autenticado");
+      }
+
+      const userfound = await Usuario.buscarUsuario(correo);
+
+      if (!userfound) {
+        throw new Error("El usuario no existe");
+      }
+
+      if (!userfound.foto) {
+        await fs.unlink(`./public/uploads/${req.file.filename}`);
+        throw new Error("El usuario no tiene una foto");
+      }
+
+      await fs.unlink(`./public${userfound.foto}`);
+
+      const userUpdated = await Usuario.actualizarFotoUsuario({
+        correo: correo,
+        foto: `/uploads/${req.file.filename}`,
+      });
+
+      res.status(200).json(userUpdated);
+    } catch (error: any) {
+      console.log(error.message);
+      return res.status(400).json({ message: [error.message] });
+    }
+  }
+
+  static async eliminar(req: Request, res: Response) {
+    try {
+      const correo = req.user?.correo;
+
+      if (!correo) {
+        throw new Error("No hay usuario autenticado");
+      }
+
+      const userfound = await Usuario.buscarUsuario(correo);
+
+      if (!userfound) {
+        throw new Error("El usuario no existe");
+      }
+
+      if (userfound.foto) {
+        await fs.unlink(`./public${userfound.foto}`);
+      }
+
+      const userDeleted = await Usuario.eliminarUsuario(correo);
+
+      res.status(200).json(userDeleted);
     } catch (error: any) {
       console.log(error.message);
       return res.status(400).json({ message: [error.message] });

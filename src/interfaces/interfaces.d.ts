@@ -23,3 +23,24 @@ export interface UsuarioRegisterI {
   correo: string;
   clave: string;
 }
+
+
+// usuario actualizar datos
+interface actualizarDatosUsuarioI {
+  correo: string;
+  nombre: string;
+  apellido: string;
+}
+
+
+// usuario actualizar clave
+interface actualizarClaveUsuarioI {
+  correo: string;
+  nuevaClave: string;
+}
+
+// agregar foto de usuario
+interface agregarFotoUsuarioI {
+  correo: string;
+  foto: string;
+}
