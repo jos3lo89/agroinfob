@@ -13,7 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 // tablas Usuarios START
 model Usuarios {
   id String @id @default(uuid()) @db.Char(36)
@@ -22,15 +21,11 @@ model Usuarios {
   apellido String  @db.VarChar(50)
   foto     String? @db.VarChar(33)
   foto_id  String? @db.VarChar(100)
-
   correo String @unique @db.VarChar(25)
   clave  String @db.VarChar(60)
-
-  rol Rol
-
+  rol Rol @default(publico)
   fechaCreacion      DateTime @default(now())
   fechaActualizacion DateTime @updatedAt
-
   telefonos TelefonoUsuario[]
 }
 

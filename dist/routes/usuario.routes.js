@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const usuario_controller_1 = require("../controllers/usuario.controller");
+const validator_1 = require("../middlewares/validator");
+const multer_1 = require("../middlewares/multer");
+const router = (0, express_1.Router)();
+router.post("/", validator_1.Validator.validateAuth, validator_1.Validator.validateUser, multer_1.Multer.uploadSingle("file"), usuario_controller_1.UsuarioController.create);
+router.put("/", usuario_controller_1.UsuarioController.update);
+router.delete("/:id", usuario_controller_1.UsuarioController.delete);
+exports.default = router;
