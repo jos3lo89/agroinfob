@@ -5,6 +5,7 @@ import * as fs from "node:fs/promises";
 // mis imports
 import { Usuario } from "../models/usuario.model";
 import { Jwt } from "../utils/jwt";
+import { config } from "../config/config";
 
 export class UsuarioController {
   static async registrar(req: Request, res: Response) {
@@ -55,7 +56,16 @@ export class UsuarioController {
         sameSite: "none",
       });
 
-      res.status(200).json(userfound);
+      res.status(200).json({
+        id: userfound.id,
+        nombre: userfound.nombre,
+        apellido: userfound.apellido,
+        correo: userfound.correo,
+        foto: userfound.foto ? `${config.serverUrl}${userfound.foto}` : userfound.foto,
+        rol: userfound.rol,
+        fechaCreacion: userfound.fechaCreacion,
+        fechaActualizacion: userfound.fechaActualizacion
+      });
     } catch (error: any) {
       console.log(error.message);
       return res.status(400).json({ message: [error.message] });
@@ -76,7 +86,17 @@ export class UsuarioController {
         throw new Error("El usuario no existe");
       }
 
-      res.status(200).json(userfound);
+      res.status(200).json({
+        id: userfound.id,
+        nombre: userfound.nombre,
+        apellido: userfound.apellido,
+        correo: userfound.correo,
+        foto: userfound.foto ? `${config.serverUrl}${userfound.foto}` : userfound.foto,
+        foto_id: userfound.foto_id ? `${config.serverUrl}${userfound.foto_id}` : userfound.foto_id,
+        rol: userfound.rol,
+        fechaCreacion: userfound.fechaCreacion,
+        fechaActualizacion: userfound.fechaActualizacion,
+      });
     } catch (error: any) {
       console.log(error.message);
       return res.status(400).json({ message: [error.message] });
@@ -149,7 +169,7 @@ export class UsuarioController {
         nuevaClave: nuevaClaveHash,
       });
 
-      res.status(200).json(userUpdated);
+      res.sendStatus(204);
     } catch (error: any) {
       console.log(error.message);
       return res.status(400).json({ message: [error.message] });
@@ -184,7 +204,9 @@ export class UsuarioController {
         foto: `/uploads/${req.file.filename}`,
       });
 
-      res.status(200).json(userUpdated);
+      res.status(200).json({
+        foto: `${config.serverUrl}${userUpdated.foto}`
+      });
     } catch (error: any) {
       console.log(error.message);
       return res.status(400).json({ message: [error.message] });
@@ -211,9 +233,9 @@ export class UsuarioController {
 
       await fs.unlink(`./public${userfound.foto}`);
 
-      const userUpdated = await Usuario.eliminarFotoUsuario(correo);
+      await Usuario.eliminarFotoUsuario(correo);
 
-      res.status(200).json(userUpdated);
+      res.sendStatus(204);
     } catch (error: any) {
       console.log(error.message);
       return res.status(400).json({ message: [error.message] });
@@ -250,7 +272,9 @@ export class UsuarioController {
         foto: `/uploads/${req.file.filename}`,
       });
 
-      res.status(200).json(userUpdated);
+      res.status(200).json({
+        foto: `${config.serverUrl}${userUpdated.foto}`
+      });
     } catch (error: any) {
       console.log(error.message);
       return res.status(400).json({ message: [error.message] });
@@ -260,6 +284,13 @@ export class UsuarioController {
   static async eliminar(req: Request, res: Response) {
     try {
       const correo = req.user?.correo;
+
+
+      const { clave } = req.body
+
+      if (!clave) {
+        throw new Error("Clave no enviada")
+      }
 
       if (!correo) {
         throw new Error("No hay usuario autenticado");
@@ -271,13 +302,19 @@ export class UsuarioController {
         throw new Error("El usuario no existe");
       }
 
+      const isMatch = await bcrypt.compare(clave, userfound.clave)
+
+      if (!isMatch) {
+        throw new Error("La clave no coincide")
+      }
+
       if (userfound.foto) {
         await fs.unlink(`./public${userfound.foto}`);
       }
 
       const userDeleted = await Usuario.eliminarUsuario(correo);
 
-      res.status(200).json(userDeleted);
+      res.sendStatus(204)
     } catch (error: any) {
       console.log(error.message);
       return res.status(400).json({ message: [error.message] });

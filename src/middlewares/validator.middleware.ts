@@ -26,7 +26,45 @@ export class Validator {
     }
   }
 
-  static async validateUser() {}
+  static async adminValidator(req: Request, res: Response, next: NextFunction) {
+    try {
+      const rol = req.user?.rol;
+
+      if (!rol) {
+        throw new Error("No hay rol autenticado");
+      }
+
+      if (rol !== "administrador") {
+        throw new Error("No tines acceso");
+      }
+
+      next();
+    } catch (error: any) {
+      return res.status(401).json({ message: [error.message] });
+    }
+  }
+
+  static async adminAsocValidator(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const rol = req.user?.rol;
+
+      if (!rol) {
+        throw new Error("No hay rol autenticado");
+      }
+
+      if (rol !== "adminAsociacion") {
+        throw new Error("No tines acceso");
+      }
+
+      next();
+    } catch (error: any) {
+      return res.status(401).json({ message: [error.message] });
+    }
+  }
 }
 
 export class FilesValidator {
