@@ -1,9 +1,11 @@
+import { number } from "zod";
 import prisma from "../config/database";
 import {
   UsuarioRegisterI,
   actualizarClaveUsuarioI,
   actualizarDatosUsuarioI,
   agregarFotoUsuarioI,
+  agregarTelefonoUsuarioI,
 } from "../interfaces/interfaces";
 
 export class Usuario {
@@ -31,6 +33,9 @@ export class Usuario {
         where: {
           correo: correo,
         },
+        include: {
+          telefonos: true
+        }
       });
 
       return userfound;
@@ -134,6 +139,22 @@ export class Usuario {
       });
 
       return userUpdated;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  static async agregarTelefonoUsuario(data: agregarTelefonoUsuarioI) {
+    try {
+      const telefonoUsuario = await prisma.telefonoUsuario.create({
+        data: {
+          usuario_id: data.usuarioId,
+          tipo: data.tipo,
+          numero: data.numero,
+        },
+      });
+
+      return telefonoUsuario;
     } catch (error: any) {
       throw error;
     }

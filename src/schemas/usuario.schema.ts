@@ -78,6 +78,9 @@ export class UsuarioSchemas {
         })
         .min(1, {
           message: "El nombre debe tener al menos un caracter",
+        })
+        .max(20, {
+          message: "El nombre es muy largo",
         }),
       apellido: z
         .string({
@@ -86,6 +89,9 @@ export class UsuarioSchemas {
         })
         .min(1, {
           message: "El apellido debe tener al menos un caracter",
+        })
+        .max(20, {
+          message: "El apellido es muy largo",
         }),
     });
 
@@ -113,5 +119,28 @@ export class UsuarioSchemas {
     });
 
     return UsuarioActualizarClaveSchema;
+  }
+
+  static usuarioAgregarTelefonoSchema() {
+    const UsuarioAgregarTelefonoSchema = z.object({
+      tipo: z
+        .string({
+          required_error: "El tipo de telefono es requerido",
+          invalid_type_error: "El tipo de telefono debe ser un string",
+        })
+        .min(1, {
+          message: "El tipo de telefono debe tener al menos un caracter",
+        }),
+      numero: z
+        .number({
+          required_error: "El numero de telefono es requerido",
+          invalid_type_error: "El numero de telefono debe ser un number",
+        })
+        .min(1, {
+          message: "El numero de telefono debe tener al menos un caracter",
+        }),
+    });
+
+    return UsuarioAgregarTelefonoSchema;
   }
 }

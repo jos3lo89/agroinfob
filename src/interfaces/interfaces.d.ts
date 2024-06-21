@@ -44,3 +44,21 @@ interface agregarFotoUsuarioI {
   correo: string;
   foto: string;
 }
+
+// agregar telefono de usuario
+export interface agregarTelefonoUsuarioI {
+  usuarioId: string;
+  tipo: 'movil' | 'fijo';
+  numero: number;
+}
+
+// asociacion register
+interface AsociacionRegisterI {
+  admin_id: string;
+  nombre: string;
+  descripcion: string;
+  numero: string;
+  tipo: "movil" | "fijo";
+  portada: string;
+  portada_id: string | null;
+}

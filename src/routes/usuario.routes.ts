@@ -87,4 +87,13 @@ router.delete(
   UsuarioController.eliminar
 );
 
+
+// POST agregar telefono de usuario
+router.post(
+  "/usuario/agregar-telefono",
+  Validator.validateAuth,
+  UsuarioMiddleware.schemaValidation(UsuarioSchemas.usuarioAgregarTelefonoSchema()),
+  UsuarioController.agregarTelefono
+);
+
 export default router;

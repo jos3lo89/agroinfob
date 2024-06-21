@@ -17,23 +17,23 @@ datasource db {
 model Usuarios {
   id String @id @default(uuid()) @db.Char(36)
 
-  nombre   String  @db.VarChar(50)
-  apellido String  @db.VarChar(50)
-  foto     String? @db.VarChar(80)
-  foto_id  String? @db.VarChar(100)
-  correo String @unique @db.VarChar(25)
-  clave  String @db.VarChar(60)
-  rol Rol @default(publico)
-  fechaCreacion      DateTime @default(now())
-  fechaActualizacion DateTime @updatedAt
-  telefonos TelefonoUsuario[]
+  nombre             String            @db.VarChar(50)
+  apellido           String            @db.VarChar(50)
+  foto               String?           @db.VarChar(80)
+  foto_id            String?           @db.VarChar(100)
+  correo             String            @unique @db.VarChar(25)
+  clave              String            @db.VarChar(60)
+  rol                Rol               @default(publico)
+  fechaCreacion      DateTime          @default(now())
+  fechaActualizacion DateTime          @updatedAt
+  telefonos          TelefonoUsuario[]
 }
 
 model TelefonoUsuario {
   id         Int          @id @default(autoincrement())
   usuario_id String       @db.Char(36)
   tipo       TipoTelefono
-  numero     BigInt
+  numero     Int
   usuario    Usuarios     @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 }
 
@@ -47,4 +47,55 @@ enum TipoTelefono {
   movil
   fijo
 }
+
 // tablas Usuarios END
+
+// tablas Asociacion START
+model Asociaciones {
+  id                 String   @id @default(uuid()) @db.Char(36)
+  admin_id           String   @db.Char(36)
+  nombre             String   @db.VarChar(50)
+  descripcion        String   @db.Text
+  portada            String   @db.VarChar(80)
+  portada_id         String?  @db.VarChar(100)
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  telefonos TelefonosAsociacion[]
+
+  publicaciones Publicaciones[]
+}
+
+model TelefonosAsociacion {
+  id            Int          @id @default(autoincrement())
+  asociacion_id String       @db.Char(36)
+  numero        String       @db.VarChar(20)
+  tipo          TipoTelefono
+  asociacion    Asociaciones @relation(fields: [asociacion_id], references: [id], onDelete: Cascade)
+}
+
+enum TipoTelefonoAsociacion {
+  movil
+  fijo
+}
+
+// tablas Asociacion END
+
+// publicaciones START
+model Publicaciones {
+  id                 String   @id @default(uuid()) @db.Char(36)
+  asociacion_id      String   @db.Char(36)
+  titulo             String   @db.VarChar(100)
+  contenido1         String   @db.Text
+  contenido2         String?  @db.Text
+  foto1              String?  @db.VarChar(80)
+  foto1_id           String?  @db.VarChar(100)
+  foto2              String?  @db.VarChar(80)
+  foto2_id           String?  @db.VarChar(100)
+  fechaPublicacion   DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  asociacion Asociaciones @relation(fields: [asociacion_id], references: [id])
+}
+
+// publicaciones END

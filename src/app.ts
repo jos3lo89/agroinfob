@@ -3,10 +3,10 @@ import morgan from "morgan";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-
 // mis imports
 import { config } from "./config/config";
 import routerUsuario from "./routes/usuario.routes";
+import routerAsociacion from "./routes/asociacion.routes";
 
 const app = express();
 
@@ -28,5 +28,5 @@ app.use(express.static("public"));
 // rutas de usuarios
 app.use("/api", routerUsuario);
 // rutas de asociacion
-
+app.use("/api", routerAsociacion);
 export default app;

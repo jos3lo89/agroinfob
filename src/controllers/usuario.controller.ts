@@ -61,10 +61,12 @@ export class UsuarioController {
         nombre: userfound.nombre,
         apellido: userfound.apellido,
         correo: userfound.correo,
-        foto: userfound.foto ? `${config.serverUrl}${userfound.foto}` : userfound.foto,
+        foto: userfound.foto
+          ? `${config.serverUrl}${userfound.foto}`
+          : userfound.foto,
         rol: userfound.rol,
         fechaCreacion: userfound.fechaCreacion,
-        fechaActualizacion: userfound.fechaActualizacion
+        fechaActualizacion: userfound.fechaActualizacion,
       });
     } catch (error: any) {
       console.log(error.message);
@@ -91,9 +93,14 @@ export class UsuarioController {
         nombre: userfound.nombre,
         apellido: userfound.apellido,
         correo: userfound.correo,
-        foto: userfound.foto ? `${config.serverUrl}${userfound.foto}` : userfound.foto,
-        foto_id: userfound.foto_id ? `${config.serverUrl}${userfound.foto_id}` : userfound.foto_id,
+        foto: userfound.foto
+          ? `${config.serverUrl}${userfound.foto}`
+          : userfound.foto,
+        foto_id: userfound.foto_id
+          ? `${config.serverUrl}${userfound.foto_id}`
+          : userfound.foto_id,
         rol: userfound.rol,
+        telefonos: userfound.telefonos,
         fechaCreacion: userfound.fechaCreacion,
         fechaActualizacion: userfound.fechaActualizacion,
       });
@@ -134,7 +141,10 @@ export class UsuarioController {
         apellido: apellido,
       });
 
-      res.status(200).json(userUpdated);
+      res.status(200).json({
+        nombre: userUpdated.nombre,
+        apellido: userUpdated.apellido,
+      });
     } catch (error: any) {
       console.log(error.message);
       return res.status(400).json({ message: [error.message] });
@@ -205,7 +215,7 @@ export class UsuarioController {
       });
 
       res.status(200).json({
-        foto: `${config.serverUrl}${userUpdated.foto}`
+        foto: `${config.serverUrl}${userUpdated.foto}`,
       });
     } catch (error: any) {
       console.log(error.message);
@@ -273,7 +283,7 @@ export class UsuarioController {
       });
 
       res.status(200).json({
-        foto: `${config.serverUrl}${userUpdated.foto}`
+        foto: `${config.serverUrl}${userUpdated.foto}`,
       });
     } catch (error: any) {
       console.log(error.message);
@@ -285,11 +295,10 @@ export class UsuarioController {
     try {
       const correo = req.user?.correo;
 
-
-      const { clave } = req.body
+      const { clave } = req.body;
 
       if (!clave) {
-        throw new Error("Clave no enviada")
+        throw new Error("Clave no enviada");
       }
 
       if (!correo) {
@@ -302,10 +311,10 @@ export class UsuarioController {
         throw new Error("El usuario no existe");
       }
 
-      const isMatch = await bcrypt.compare(clave, userfound.clave)
+      const isMatch = await bcrypt.compare(clave, userfound.clave);
 
       if (!isMatch) {
-        throw new Error("La clave no coincide")
+        throw new Error("La clave no coincide");
       }
 
       if (userfound.foto) {
@@ -314,7 +323,53 @@ export class UsuarioController {
 
       const userDeleted = await Usuario.eliminarUsuario(correo);
 
-      res.sendStatus(204)
+      res.sendStatus(204);
+    } catch (error: any) {
+      console.log(error.message);
+      return res.status(400).json({ message: [error.message] });
+    }
+  }
+
+  static async agregarTelefono(req: Request, res: Response) {
+    try {
+      const correo = req.user?.correo;
+
+      const usuarioId = req.user?.id;
+      const { tipo, numero } = req.body;
+
+      if (!usuarioId) {
+        throw new Error("No hay usuario autenticado");
+      }
+
+      if (!correo) {
+        throw new Error("No hay usuario autenticado");
+      }
+
+      const userfound = await Usuario.buscarUsuario(correo);
+
+      if (!userfound) {
+        throw new Error("El usuario no existe");
+      }
+
+      if (userfound.telefonos.length >= 2) {
+        throw new Error("El usuario ya tiene dos telefonos");
+      }
+
+      if (!numero) {
+        throw new Error("No hay tipo o numero de telefono");
+      }
+
+      if (tipo !== "movil" && tipo !== "fijo") {
+        throw new Error("Tipo de telefono no valido");
+      }
+
+      const telefono = await Usuario.agregarTelefonoUsuario({
+        usuarioId,
+        tipo,
+        numero,
+      });
+
+      res.status(201).json(telefono);
     } catch (error: any) {
       console.log(error.message);
       return res.status(400).json({ message: [error.message] });

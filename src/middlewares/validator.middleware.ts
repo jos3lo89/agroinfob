@@ -57,7 +57,7 @@ export class Validator {
       }
 
       if (rol !== "adminAsociacion") {
-        throw new Error("No tines acceso");
+        throw new Error("No tienes acceso");
       }
 
       next();
